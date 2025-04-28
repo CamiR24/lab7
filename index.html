@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lab#6</title>
+
+        <!-- Inclusión de las bibliotecas de React y Babel desde CDN -->
+        <script src="https://unpkg.com/react@18/umd/react.development.js" ></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" ></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js" ></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </head>
+
+    <style>
+      /*home*/
+      body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('./assets/background.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh; 
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+      }
+
+      .container {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .home {
+        background: rgb(235, 228, 205);
+        border-radius: 50px;
+        padding: 4rem 6rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+        position: relative;
+        display: inline-block;
+      }
+
+      h1 {
+        font-size: 4rem;
+        color: #8c6f57;
+        margin: 1rem 0;
+        text-shadow: 3px 3px rgb(73, 38, 22);
+      }
+
+      p {
+        font-size: 3rem;
+        color: #8c6f57;
+        margin: 1rem 0;
+      }
+
+      .begin-button {
+        background: #c09878;
+        border-radius: 30px;
+        border-color: #372b21;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 30px;
+        padding-right: 30px;
+        text-align: center;
+        font-size: 2rem;
+        font-family: 'Poppins', sans-serif;
+        color: #372b21;
+      }
+
+      /*memoria*/
+      .card {
+        width: 120px;
+        height: 160px;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6rem;
+        background-image: 
+          radial-gradient(circle at top left, #8ca3b7 20%, transparent 21%),
+          radial-gradient(circle at top right, #8ca3b7 20%, transparent 21%),
+          radial-gradient(circle at bottom right, #8ca3b7 20%, transparent 21%),
+          radial-gradient(circle at bottom left, #8ca3b7 20%, transparent 21%);
+        background-size: 20px 20px; /* tamaño del patrón */
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        border-radius: 12px;
+      }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .card.turned .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            font-family: 'Gulfs Display';
+        }
+
+        .front {
+            cursor: pointer;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        .back img {
+            width: 100%;
+            height: auto;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 2rem;
+        }
+           
+    </style>
+
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
+            
+            function Card({ image }) {
+                const [turned, setTurned] = React.useState(false);
+
+                const click = () => {
+                    setTurned(true);
+                    setCounter(count => count + 1);
+                };
+
+                return (
+                    <div className={`card ${turned ? 'turned' : ''}`} onClick={click}>
+                        <div className="card">
+                            <div className="front">?</div>
+                            <div className="back">
+                                <img src={image} alt="imagen" />
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            function Game() {
+                // Definir las imágenes de las cartas
+                const imagePaths = React.useMemo(() => {
+                    const base = ['girasoles.png', 'grito.png', 'manos.png', 'monalisa.png', 'mujer.png', 'noche.png', 'tiempo.png', 'venus.png'];
+                    const duplicated = [...base, ...base];
+                    return duplicated.sort(() => 0.5 - Math.random());
+                }, []);
+
+                const [showCards, setShowCards] = React.useState(false);
+                const [turnedCards, setTurnedCards] = React.useState([]); 
+                const [matchedCards, setMatchedCards] = React.useState([]); 
+                const [check, setCheck] = React.useState(false);
+                const [counter, setCounter] = React.useState(0);
+
+                const handleStart = () => {
+                    setShowCards(true);
+                };
+
+                const handleClick = (index) => {
+                    // No hacer nada si ya está checando, si la carta ya está volteada o si ya está emparejada
+                    if (check || turnedCards.includes(index) || matchedCards.includes(index)) return;
+                    
+                    // Incrementar contador
+                    setCounter(count => count + 1);
+                    
+                    // Añadir la carta a las volteadas
+                    const newTurned = [...turnedCards, index];
+                    setTurnedCards(newTurned);
+                    
+                    // Si ya hay dos cartas volteadas
+                    if (newTurned.length === 2) {
+                        setCheck(true);
+                        setTimeout(() => {
+                            const [one, two] = newTurned;
+                            // Comprobar si las imágenes son iguales
+                            if (imagePaths[one] === imagePaths[two]) {
+                                setMatchedCards(prev => [...prev, one, two]);
+                            }
+                            setTurnedCards([]);
+                            setCheck(false);
+                        }, 1000);
+                    }
+                };
+                
+                // Renderizar las cartas
+                const renderCards = () => {
+                    return (
+                    <>
+                        <div className="counter-display">Movimientos: {counter}</div>
+                        <div className="card-grid">
+                            {imagePaths.map((image, i) => {
+                                const isTurned = turnedCards.includes(i) || matchedCards.includes(i); 
+                                return (
+                                    <button 
+                                        key={i} 
+                                        className="card" 
+                                        onClick={() => handleClick(i)}
+                                    >
+                                        {isTurned ? (
+                                            <img src={`./assets/${image}`} alt="card" style={{ width: '100px', height: '140px' }} />                            
+                                        ) : ( ""
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </>
+                    );
+                };
+                
+                // Renderizar pantalla de felicitaciones si se han encontrado todos los pares
+                if (matchedCards.length === imagePaths.length) {
+                    return (
+                        <div className="congratulations">
+                            <h1>Espero disfrutaras el recorrido!</h1>
+                            <p>Completaste el juego en {counter/2} movimientos</p>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div style={{ position: 'relative' }}>
+                        {!showCards ? (
+                            <div className="home">
+                                <h1>Bienvenido a mi museo</h1>
+                                <p>Empieza el juego</p>
+                                <button className="begin-button" onClick={handleStart}>Empezar</button>
+                            </div>
+                        ) : (
+                            renderCards()
+                        )}
+                    </div>
+                );
+            }
+
+        //Render App
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<Game />);
+
+    </script>
+</body>
+</html>
